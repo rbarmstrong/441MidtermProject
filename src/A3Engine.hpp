@@ -103,7 +103,6 @@ private:
         GLint mvpMatrix;
         /// \desc material diffuse color location
         GLint materialColor;
-        // TODO #1: add new uniforms
         GLint normMatrix;
         GLint lightDirec;
         GLint lightColor;
@@ -112,7 +111,6 @@ private:
     struct LightingShaderAttributeLocations {
         /// \desc vertex position location
         GLint vPos;
-        // TODO #2: add new attributes
         GLint vNorm;
     } _lightingShaderAttributeLocations;
 

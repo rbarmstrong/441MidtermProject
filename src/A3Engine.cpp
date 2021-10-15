@@ -111,22 +111,18 @@ void A3Engine::_setupOpenGL() {
 void A3Engine::_setupShaders() {
     _lightingShaderProgram = new CSCI441::ShaderProgram("shaders/A3.v.glsl", "shaders/A3.f.glsl" );
     _lightingShaderUniformLocations.mvpMatrix      = _lightingShaderProgram->getUniformLocation("mvpMatrix");
-    // TODO #3A: assign uniforms
     _lightingShaderUniformLocations.normMatrix     = _lightingShaderProgram->getUniformLocation("normMatrix");
     _lightingShaderUniformLocations.lightDirec     = _lightingShaderProgram->getUniformLocation("lightDirec");
     _lightingShaderUniformLocations.lightColor     = _lightingShaderProgram->getUniformLocation("lightColor");
     _lightingShaderUniformLocations.materialColor  = _lightingShaderProgram->getUniformLocation("materialColor");
     _lightingShaderAttributeLocations.vPos         = _lightingShaderProgram->getAttributeLocation("vPos");
-    // TODO #3B: assign attributes
     _lightingShaderAttributeLocations.vNorm        = _lightingShaderProgram->getAttributeLocation("vNorm");
 
 }
 
 void A3Engine::_setupBuffers() {
-    // TODO #4: need to connect our 3D Object Library to our shader
     CSCI441::setVertexAttributeLocations( _lightingShaderAttributeLocations.vPos, _lightingShaderAttributeLocations.vNorm );
 
-    // TODO #5: give the ship the normal matrix location
     _ship = new Ship(_lightingShaderProgram->getShaderProgramHandle(),
                      _lightingShaderUniformLocations.mvpMatrix,
                      _lightingShaderUniformLocations.normMatrix,
@@ -137,13 +133,11 @@ void A3Engine::_setupBuffers() {
 }
 
 void A3Engine::_createGroundBuffers() {
-    // TODO #8: expand our struct
     struct Vertex {
         GLfloat x, y, z;
         GLfloat xNorm, yNorm, zNorm;
     };
 
-    // TODO #9: add normal data
     Vertex groundQuad[4] = {
             {-1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f},
             { 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f},
@@ -166,7 +160,6 @@ void A3Engine::_createGroundBuffers() {
     glEnableVertexAttribArray(_lightingShaderAttributeLocations.vPos);
     glVertexAttribPointer(_lightingShaderAttributeLocations.vPos, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
-    // TODO #10: hook up vertex normal attribute
     glEnableVertexAttribArray(_lightingShaderAttributeLocations.vNorm);
     glVertexAttribPointer(_lightingShaderAttributeLocations.vNorm, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(float) * 3));
 
@@ -229,7 +222,6 @@ void A3Engine::_setupScene() {
     _arcBall->recomputeOrientation();
     _cameraSpeed = glm::vec2(0.25f, 0.02f);
 
-    // TODO #6: set lighting uniforms
     glm::vec3 lightDirec = glm::vec3(-1, -1, -1);
     glm::vec3 lightColor = glm::vec3(1, 1, 1);
     glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
@@ -378,7 +370,6 @@ void A3Engine::_computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewM
     // then send it to the shader on the GPU to apply to every vertex
     _lightingShaderProgram->setProgramUniform(_lightingShaderUniformLocations.mvpMatrix, mvpMtx);
 
-    // TODO #7: compute and send the normal matrix
     glm::mat3 normalMtx = glm::mat3(glm::transpose(glm::inverse(modelMtx)));
     _lightingShaderProgram->setProgramUniform(_lightingShaderUniformLocations.normMatrix, normalMtx);
 }

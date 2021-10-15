@@ -162,7 +162,6 @@ void MPEngine::_createGroundBuffers() {
     glEnableVertexAttribArray(_lightingShaderAttributeLocations.vPos);
     glVertexAttribPointer(_lightingShaderAttributeLocations.vPos, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
-    // TODO #10: hook up vertex normal attribute
     glEnableVertexAttribArray(_lightingShaderAttributeLocations.vNorm);
     glVertexAttribPointer(_lightingShaderAttributeLocations.vNorm, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(float) * 3));
 
@@ -225,7 +224,6 @@ void MPEngine::_setupScene() {
     _arcBall->recomputeOrientation();
     _cameraSpeed = glm::vec2(0.25f, 0.02f);
 
-    // TODO #6: set lighting uniforms
     glm::vec3 lightDirec = glm::vec3(-1, -1, -1);
     glm::vec3 lightColor = glm::vec3(1, 1, 1);
     glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
