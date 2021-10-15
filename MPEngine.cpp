@@ -128,6 +128,8 @@ void MPEngine::_setupShaders() {
     _lightingShaderUniformLocations.lightColor     = _lightingShaderProgram->getUniformLocation("lightColor");
     _lightingShaderUniformLocations.materialColor  = _lightingShaderProgram->getUniformLocation("materialColor");
 
+    _lightingShaderUniformLocations.camPos      = _lightingShaderProgram->getUniformLocation("camPos");
+
     _lightingShaderAttributeLocations.vPos         = _lightingShaderProgram->getAttributeLocation("vPos");
     _lightingShaderAttributeLocations.vNorm        = _lightingShaderProgram->getAttributeLocation("vNorm");
 
@@ -281,6 +283,9 @@ void MPEngine::_cleanupBuffers() {
 void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     // use our lighting shader program
     _lightingShaderProgram->useProgram();
+
+    // camera position can change so send it to shader every frame
+    glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.camPos, 1, &_freeCam->getPosition()[0]);
 
     //// BEGIN DRAWING THE GROUND PLANE ////
     // draw the ground plane
