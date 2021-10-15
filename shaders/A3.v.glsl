@@ -72,7 +72,7 @@ void main() {
 
 
 
-    vec3 newColor = (pointColor) * materialColor;
+    vec3 newColor = (dirColor + pointColor) * materialColor;
     color = newColor;
 
 }
