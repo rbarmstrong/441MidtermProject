@@ -119,6 +119,11 @@ private:
         GLint pointLightColor;
         GLint pointLightPos;
 
+        GLint spotLightPos;
+        GLint spotLightDirec;
+        GLint spotLightColor;
+        GLint spotLightAngle;
+
         GLint attenuationConst;
         GLint attenuationLinear;
         GLint attenuationQuadratic;

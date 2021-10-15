@@ -153,6 +153,11 @@ void MPEngine::_setupShaders() {
     _lightingShaderUniformLocations.pointLightPos   = _lightingShaderProgram->getUniformLocation("pointLightPos");
     _lightingShaderUniformLocations.pointLightColor = _lightingShaderProgram->getUniformLocation("pointLightColor");
 
+    _lightingShaderUniformLocations.spotLightPos = _lightingShaderProgram->getUniformLocation("spotLightPos");
+    _lightingShaderUniformLocations.spotLightDirec = _lightingShaderProgram->getUniformLocation("spotLightDirec");
+    _lightingShaderUniformLocations.spotLightColor = _lightingShaderProgram->getUniformLocation("spotLightColor");
+    _lightingShaderUniformLocations.spotLightAngle = _lightingShaderProgram->getUniformLocation("spotLightAngle");
+
     _lightingShaderUniformLocations.attenuationConst = _lightingShaderProgram->getUniformLocation("attenuationConst");
     _lightingShaderUniformLocations.attenuationLinear = _lightingShaderProgram->getUniformLocation("attenuationLinear");
     _lightingShaderUniformLocations.attenuationQuadratic = _lightingShaderProgram->getUniformLocation("attenuationQuadratic");
@@ -304,7 +309,6 @@ void MPEngine::_setupScene() {
                         &lightColor[0]);
 
     glm::vec3 pointLightColor = glm::vec3(0, 1, 0);
-
     glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
                         _lightingShaderUniformLocations.pointLightColor,
                         1,
@@ -316,6 +320,16 @@ void MPEngine::_setupScene() {
     glProgramUniform1f(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.attenuationConst, attenuationConst);
     glProgramUniform1f(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.attenuationLinear, attenuationLinear);
     glProgramUniform1f(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.attenuationQuadratic, attenuationQuadratic);
+
+    float spotLightCutOffAngle = glm::cos(M_PI / 16);
+    glProgramUniform1f(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.spotLightAngle, spotLightCutOffAngle);
+
+    glm::vec3 spotLightColor = glm::vec3(1, 0, 0);
+    glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
+                        _lightingShaderUniformLocations.spotLightColor,
+                        1,
+                        &spotLightColor[0]);
+
 }
 
 //*************************************************************************************
@@ -355,6 +369,17 @@ void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
                         _lightingShaderUniformLocations.pointLightPos,
                         1,
                         &_freeCam->getPosition()[0]);
+
+    glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
+                        _lightingShaderUniformLocations.spotLightPos,
+                        1,
+                        &_freeCam->getPosition()[0]);
+
+    glm::vec3 camDirection = _freeCam->getLookAtPoint() - _freeCam->getPosition();
+    glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
+                        _lightingShaderUniformLocations.spotLightDirec,
+                        1,
+                        &camDirection[0]);
 
 
     //// BEGIN DRAWING THE GROUND PLANE ////
@@ -589,6 +614,8 @@ void MPEngine::_computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewM
     glm::mat4 mvpMtx = projMtx * viewMtx * modelMtx;
     // then send it to the shader on the GPU to apply to every vertex
     _lightingShaderProgram->setProgramUniform(_lightingShaderUniformLocations.mvpMatrix, mvpMtx);
+    _lightingShaderProgram->setProgramUniform(_lightingShaderUniformLocations.modelMatrix, modelMtx);
+
 
     glm::mat3 normalMtx = glm::mat3(glm::transpose(glm::inverse(modelMtx)));
     _lightingShaderProgram->setProgramUniform(_lightingShaderUniformLocations.normMatrix, normalMtx);

@@ -9,8 +9,16 @@ uniform vec3 lightDirec;
 uniform vec3 lightColor;
 
 uniform vec3 camPos;
+
+// point light
 uniform vec3 pointLightPos;
 uniform vec3 pointLightColor;
+
+// spot light
+uniform vec3 spotLightPos;
+uniform vec3 spotLightDirec;
+uniform vec3 spotLightColor;
+uniform float spotLightAngle;
 
 // attenuation constants
 uniform float attenuationConst;
@@ -60,19 +68,31 @@ void main() {
 
 
     // attenuation calculation
-    float d = length(pointLightPos - vPos);
+    float d = length(pointLightPos - vPosWorld);
     float attenuation = 1.0 / (attenuationConst + attenuationLinear * d + attenuationQuadratic * (d * d));
 
     // point light
-    vec3 pointLightVec = normalize(pointLightPos - vPos);
+    vec3 pointLightVec = normalize(pointLightPos - vPosWorld);
     vec3 pointDiffuse = max(dot(normVec, pointLightVec), 0) * pointLightColor;
     vec3 pointSpecular = specularStrength * reflectance * pointLightColor;
 
+    // color from point light
     vec3 pointColor = (pointDiffuse + pointSpecular) * attenuation * 1000;
 
+    // spot light
+    vec3 spotLightVec = normalize(spotLightPos - vPosWorld);
 
+    vec3 spotColor;
+    if(dot(spotLightDirec, -spotLightVec) > spotLightAngle) {
+        vec3 spotDiffuse = max(dot(normVec, spotLightVec), 0) * spotLightColor;
 
-    vec3 newColor = (dirColor + pointColor) * materialColor;
+        spotColor = (spotDiffuse);
+
+    } else {
+        spotColor = vec3(0, 0, 0);
+    }
+
+    vec3 newColor = (dirColor + pointColor + spotColor) * materialColor;
     color = newColor;
 
 }
