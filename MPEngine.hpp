@@ -108,6 +108,7 @@ private:
         GLint normMatrix;
         GLint lightDirec;
         GLint lightColor;
+        GLint camPos;
     } _lightingShaderUniformLocations;
     /// \desc stores the locations of all of our shader attributes
     struct LightingShaderAttributeLocations {
