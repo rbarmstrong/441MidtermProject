@@ -29,7 +29,7 @@ MPEngine::MPEngine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
     _leftMouseButtonState = GLFW_RELEASE;
     _camToggle = false;
     _firstOn = false;
-    _tracker = 0;
+    tracker = 0;
 }
 
 MPEngine::~MPEngine() {
@@ -359,12 +359,33 @@ void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
 }
 
 void MPEngine::_updateScene() {
-    int radius = 3;
-    glm::vec3 firstpos  =_ship->getPosition();
-    firstpos.x += radius * sinf(_ship->getAngle());
-    firstpos.z += radius * cosf(_ship->getAngle());
-    _firstCam->setPosition( firstpos );
-    _firstCam->setTheta( -_ship->getAngle() +M_PI);
+
+    switch( tracker ) {
+        case 0:
+            int radius = 3;
+            glm::vec3 firstpos = _ship->getPosition();
+            firstpos.x += radius * sinf(_ship->getAngle());
+            firstpos.z += radius * cosf(_ship->getAngle());
+            _firstCam->setPosition(firstpos);
+            _firstCam->setTheta(-_ship->getAngle() + M_PI);
+            break;
+        /*case 1:
+            int radius = 1;
+            glm::vec3 firstpos = _hero->getPosition();
+            firstpos.x += radius * sinf(_hero->getAngle());
+            firstpos.z += radius * cosf(_hero->getAngle());
+            _firstCam->setPosition(firstpos);
+            _firstCam->setTheta(-_hero->getAngle() + M_PI);
+            break;
+        case 2:
+            int radius = 1;
+            glm::vec3 firstpos = _car->getPosition();
+            firstpos.x += radius * sinf(_car->getAngle());
+            firstpos.z += radius * cosf(_car->getAngle());
+            _firstCam->setPosition(firstpos);
+            _firstCam->setTheta(-_car->getAngle() + M_PI);
+            break;*/
+    }
     _firstCam->recomputeOrientation();
     if (_camToggle) {
         // fly

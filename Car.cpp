@@ -75,6 +75,9 @@ void Car::turnLeft() {
 void Car::turnRight() {
     _rotateCarAngle -= 0.1;
 }
+GLfloat Car::getAngle() {
+    return _rotateCarAngle;
+}
 
 glm::vec3 Car::getPosition() {
     return _carTrans;

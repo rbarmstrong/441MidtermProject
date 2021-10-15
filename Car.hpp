@@ -18,6 +18,8 @@ public:
 
     glm::vec3 getPosition();
 
+    GLfloat getAngle();
+
 private:
     /// \desc handle of the shader program to use when drawing the plane
     GLuint _shaderProgramHandle;
@@ -74,6 +76,7 @@ private:
     glm::vec3 _carTrans;
     float _moveSpeed;
     float _rotateCarAngle;
+
 };
 
 

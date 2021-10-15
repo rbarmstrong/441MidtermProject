@@ -29,6 +29,8 @@ public:
 
     glm::vec3 getPosition();
 
+    GLfloat getAngle();
+
 private:
     /// \desc current angle of rotation for the propeller
     GLfloat _propAngle;

@@ -132,6 +132,7 @@ private:
 
 
     int tracker;
+    int _tracker;
 };
 
 void MP_keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods );

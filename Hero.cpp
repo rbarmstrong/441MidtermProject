@@ -79,6 +79,9 @@ void Hero::turnRight() {
 glm::vec3 Hero::getPosition() {
     return _heroTrans;
 }
+GLfloat Hero::getAngle() {
+    return _rotateHeroAngle;
+}
 void Hero::drawHero(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx ) {
     glUseProgram( _shaderProgramHandle );
     if(_up){
