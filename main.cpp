@@ -11,7 +11,7 @@
  *
  */
 
-#include "A3Engine.hpp"
+#include "MPEngine.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -21,13 +21,13 @@
 // Our main function
 int main() {
 
-    auto a3Engine = new A3Engine(4, 1, 640, 480, "A3: To The Arena");
-    a3Engine->initialize();
-    if (a3Engine->getError() == CSCI441::OpenGLEngine::OPENGL_ENGINE_ERROR_NO_ERROR) {
-        a3Engine->run();
+    auto mpEngine = new MPEngine(4, 1, 640, 480, "Midterm Project: The Main Attraction");
+    mpEngine->initialize();
+    if (mpEngine->getError() == CSCI441::OpenGLEngine::OPENGL_ENGINE_ERROR_NO_ERROR) {
+        mpEngine->run();
     }
-    a3Engine->shutdown();
-    delete a3Engine;
+    mpEngine->shutdown();
+    delete mpEngine;
 
 	return EXIT_SUCCESS;
 }
