@@ -34,7 +34,7 @@ A3Engine::A3Engine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
     _numGridPoints = 0;
     _gridColor = glm::vec3(1.0f, 1.0f, 1.0f);
     _freeCam = new ArcCam();
-    _currentCam = new Camera();
+    //_currentCam = new Camera();
     _mousePosition = glm::vec2(MOUSE_UNITIALIZED, MOUSE_UNITIALIZED );
     _leftMouseButtonState = GLFW_RELEASE;
     _X = 0;

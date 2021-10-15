@@ -4,7 +4,7 @@
 #include <CSCI441/OpenGLEngine.hpp>
 #include <CSCI441/ShaderProgram.hpp>
 #include "ArcCam.hpp"
-#include <CSCI441/Camera.hpp>
+
 #include <glm/glm.hpp>
 #include "Hero.hpp"
 #include <vector>
@@ -136,7 +136,7 @@ private:
 
     void _renderScene();
 
-    Camera *_currentCam;
+    //Camera *_currentCam;
 };
 
 void lab02_keyboard_callback( GLFWwindow *window, int key, int scancode, int action, int mods );
