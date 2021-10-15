@@ -461,17 +461,19 @@ void MPEngine::run() {
         GLint framebufferWidth, framebufferHeight;
         glfwGetFramebufferSize(_window, &framebufferWidth, &framebufferHeight);
 
+        glm::mat4 viewMatrix;
+        glm::mat4 projectionMatrix;
+
         // update the viewport - tell OpenGL we want to render to the whole window
         glViewport(0, 0, framebufferWidth, framebufferHeight);
 
         // set the projection matrix based on the window size
         // use a perspective projection that ranges
         // with a FOV of 45 degrees, for our current aspect ratio, and Z ranges from [0.001, 1000].
-        glm::mat4 projectionMatrix = glm::perspective(45.0f, (GLfloat) framebufferWidth / (GLfloat) framebufferHeight,
+        projectionMatrix = glm::perspective(45.0f, (GLfloat) framebufferWidth / (GLfloat) framebufferHeight,
                                                       0.001f, 1000.0f);
 
         // set up our look at matrix to position our camera
-        glm::mat4 viewMatrix;
         if (_camToggle) {
             viewMatrix = _arcBall->getViewMatrix();
         } else {
@@ -480,14 +482,21 @@ void MPEngine::run() {
 
         // draw everything to the window
         _renderScene(viewMatrix, projectionMatrix);
+
+        _updateScene();
+
         if (_firstOn) {
             glViewport(0, 0, framebufferWidth / 4, framebufferHeight / 4);
+            glScissor(0, 0, framebufferWidth / 4, framebufferHeight / 4);
+            glEnable(GL_SCISSOR_TEST);
+            glClear(GL_COLOR_BUFFER_BIT |
+                    GL_DEPTH_BUFFER_BIT);
             projectionMatrix = glm::perspective(45.0f, (GLfloat) (framebufferWidth / 4) / (GLfloat) (framebufferHeight / 4),
-                                            0.001f, 1000.0f);
+                                                0.001f, 1000.0f);
             viewMatrix = _firstCam->getViewMatrix();
             _renderScene(viewMatrix, projectionMatrix);
+            glDisable(GL_SCISSOR_TEST);
         }
-        _updateScene();
 
         glfwSwapBuffers(_window);                       // flush the OpenGL commands and make sure they get rendered!
         glfwPollEvents();				                // check for any events and signal to redraw screen
