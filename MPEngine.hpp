@@ -9,12 +9,12 @@
 
 #include <vector>
 
-class A3Engine : public CSCI441::OpenGLEngine {
+class MPEngine : public CSCI441::OpenGLEngine {
 public:
-    A3Engine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
+    MPEngine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
              int WINDOW_WIDTH, int WINDOW_HEIGHT,
              const char* WINDOW_TITLE);
-    ~A3Engine();
+    ~MPEngine();
 
     void run() final;
 
@@ -103,7 +103,6 @@ private:
         GLint mvpMatrix;
         /// \desc material diffuse color location
         GLint materialColor;
-        // TODO #1: add new uniforms
         GLint normMatrix;
         GLint lightDirec;
         GLint lightColor;
@@ -112,7 +111,6 @@ private:
     struct LightingShaderAttributeLocations {
         /// \desc vertex position location
         GLint vPos;
-        // TODO #2: add new attributes
         GLint vNorm;
     } _lightingShaderAttributeLocations;
 
@@ -125,8 +123,8 @@ private:
     void _computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx) const;
 };
 
-void lab05_keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods );
-void lab05_cursor_callback(GLFWwindow *window, double x, double y );
-void lab05_mouse_button_callback(GLFWwindow *window, int button, int action, int mods );
+void MP_keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods );
+void MP_cursor_callback(GLFWwindow *window, double x, double y );
+void MP_mouse_button_callback(GLFWwindow *window, int button, int action, int mods );
 
 #endif // LAB05_LAB05_ENGINE_HPP

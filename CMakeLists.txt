@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(A3)
+project(MP)
 set(CMAKE_CXX_STANDARD 17)
-set(SOURCE_FILES main.cpp A3Engine.cpp A3Engine.hpp Ship.cpp Ship.hpp ArcBall.cpp ArcBall.hpp)
+set(SOURCE_FILES main.cpp MPEngine.cpp MPEngine.hpp Ship.cpp Ship.hpp ArcBall.cpp ArcBall.hpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Windows with MinGW Installations

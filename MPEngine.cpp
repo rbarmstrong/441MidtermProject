@@ -1,4 +1,4 @@
-#include "A3Engine.hpp"
+#include "MPEngine.hpp"
 #include <ctime>
 #include <CSCI441/objects.hpp>
 
@@ -19,7 +19,7 @@ GLfloat getRand() {
 //
 // Public Interface
 
-A3Engine::A3Engine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
+MPEngine::MPEngine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
                    int WINDOW_WIDTH, int WINDOW_HEIGHT, const char* WINDOW_TITLE)
          : CSCI441::OpenGLEngine(OPENGL_MAJOR_VERSION, OPENGL_MINOR_VERSION, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE) {
 
@@ -29,11 +29,11 @@ A3Engine::A3Engine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
     _leftMouseButtonState = GLFW_RELEASE;
 }
 
-A3Engine::~A3Engine() {
+MPEngine::~MPEngine() {
     delete _arcBall;
 }
 
-void A3Engine::handleKeyEvent(GLint key, GLint action) {
+void MPEngine::handleKeyEvent(GLint key, GLint action) {
     if(key != GLFW_KEY_UNKNOWN)
         _keys[key] = ((action == GLFW_PRESS) || (action == GLFW_REPEAT));
 
@@ -50,7 +50,7 @@ void A3Engine::handleKeyEvent(GLint key, GLint action) {
     }
 }
 
-void A3Engine::handleMouseButtonEvent(GLint button, GLint action) {
+void MPEngine::handleMouseButtonEvent(GLint button, GLint action) {
     // if the event is for the left mouse button
     if( button == GLFW_MOUSE_BUTTON_LEFT ) {
         // update the left mouse button's state
@@ -58,7 +58,7 @@ void A3Engine::handleMouseButtonEvent(GLint button, GLint action) {
     }
 }
 
-void A3Engine::handleCursorPositionEvent(glm::vec2 currMousePosition) {
+void MPEngine::handleCursorPositionEvent(glm::vec2 currMousePosition) {
     // if mouse hasn't moved in the window, prevent camera from flipping out
     if(_mousePosition.x == MOUSE_UNINITIALIZED) {
         _mousePosition = currMousePosition;
@@ -89,16 +89,16 @@ void A3Engine::handleCursorPositionEvent(glm::vec2 currMousePosition) {
 //
 // Engine Setup
 
-void A3Engine::_setupGLFW() {
+void MPEngine::_setupGLFW() {
     CSCI441::OpenGLEngine::_setupGLFW();
 
     // set our callbacks
-    glfwSetKeyCallback(_window, lab05_keyboard_callback);
-    glfwSetMouseButtonCallback(_window, lab05_mouse_button_callback);
-    glfwSetCursorPosCallback(_window, lab05_cursor_callback);
+    glfwSetKeyCallback(_window, MP_keyboard_callback);
+    glfwSetMouseButtonCallback(_window, MP_mouse_button_callback);
+    glfwSetCursorPosCallback(_window, MP_cursor_callback);
 }
 
-void A3Engine::_setupOpenGL() {
+void MPEngine::_setupOpenGL() {
     glEnable( GL_DEPTH_TEST );					                    // enable depth testing
     glDepthFunc( GL_LESS );							                // use less than depth test
 
@@ -108,25 +108,23 @@ void A3Engine::_setupOpenGL() {
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// clear the frame buffer to black
 }
 
-void A3Engine::_setupShaders() {
+void MPEngine::_setupShaders() {
     _lightingShaderProgram = new CSCI441::ShaderProgram("shaders/A3.v.glsl", "shaders/A3.f.glsl" );
+
     _lightingShaderUniformLocations.mvpMatrix      = _lightingShaderProgram->getUniformLocation("mvpMatrix");
-    // TODO #3A: assign uniforms
     _lightingShaderUniformLocations.normMatrix     = _lightingShaderProgram->getUniformLocation("normMatrix");
     _lightingShaderUniformLocations.lightDirec     = _lightingShaderProgram->getUniformLocation("lightDirec");
     _lightingShaderUniformLocations.lightColor     = _lightingShaderProgram->getUniformLocation("lightColor");
     _lightingShaderUniformLocations.materialColor  = _lightingShaderProgram->getUniformLocation("materialColor");
+
     _lightingShaderAttributeLocations.vPos         = _lightingShaderProgram->getAttributeLocation("vPos");
-    // TODO #3B: assign attributes
     _lightingShaderAttributeLocations.vNorm        = _lightingShaderProgram->getAttributeLocation("vNorm");
 
 }
 
-void A3Engine::_setupBuffers() {
-    // TODO #4: need to connect our 3D Object Library to our shader
+void MPEngine::_setupBuffers() {
     CSCI441::setVertexAttributeLocations( _lightingShaderAttributeLocations.vPos, _lightingShaderAttributeLocations.vNorm );
 
-    // TODO #5: give the ship the normal matrix location
     _ship = new Ship(_lightingShaderProgram->getShaderProgramHandle(),
                      _lightingShaderUniformLocations.mvpMatrix,
                      _lightingShaderUniformLocations.normMatrix,
@@ -136,14 +134,12 @@ void A3Engine::_setupBuffers() {
     _generateEnvironment();
 }
 
-void A3Engine::_createGroundBuffers() {
-    // TODO #8: expand our struct
+void MPEngine::_createGroundBuffers() {
     struct Vertex {
         GLfloat x, y, z;
         GLfloat xNorm, yNorm, zNorm;
     };
 
-    // TODO #9: add normal data
     Vertex groundQuad[4] = {
             {-1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f},
             { 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f},
@@ -174,7 +170,7 @@ void A3Engine::_createGroundBuffers() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
-void A3Engine::_generateEnvironment() {
+void MPEngine::_generateEnvironment() {
     //******************************************************************
     // parameters to make up our grid size and spacing, feel free to
     // play around with this
@@ -220,7 +216,7 @@ void A3Engine::_generateEnvironment() {
     }
 }
 
-void A3Engine::_setupScene() {
+void MPEngine::_setupScene() {
     _arcBall = new ArcBall();
     _arcBall->setRadius(10.0f);
     _arcBall->setLookAtPoint(_ship->getPosition());
@@ -246,12 +242,12 @@ void A3Engine::_setupScene() {
 //
 // Engine Cleanup
 
-void A3Engine::_cleanupShaders() {
+void MPEngine::_cleanupShaders() {
     fprintf( stdout, "[INFO]: ...deleting Shaders.\n" );
     delete _lightingShaderProgram;
 }
 
-void A3Engine::_cleanupBuffers() {
+void MPEngine::_cleanupBuffers() {
     fprintf( stdout, "[INFO]: ...deleting VAOs....\n" );
     CSCI441::deleteObjectVAOs();
     glDeleteVertexArrays( 1, &_groundVAO );
@@ -267,7 +263,7 @@ void A3Engine::_cleanupBuffers() {
 //
 // Rendering / Drawing Functions - this is where the magic happens!
 
-void A3Engine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
+void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     // use our lighting shader program
     _lightingShaderProgram->useProgram();
 
@@ -295,45 +291,35 @@ void A3Engine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
 
     //// BEGIN DRAWING THE SHIP ////
     glm::mat4 modelMtx(1.0f);
-    // we are going to cheat and use our look at point to place our ship so that it is always in view
-    //modelMtx = glm::translate( modelMtx, _arcBall->getLookAtPoint() );
-    // rotate the ship with our camera theta direction (we need to rotate the opposite direction so that we always look at the back)
-    //modelMtx = glm::rotate( modelMtx, -_arcBall->getTheta(), CSCI441::Y_AXIS );
-    // rotate the ship with our camera phi direction
-    //modelMtx = glm::rotate( modelMtx,  _arcBall->getPhi(), CSCI441::X_AXIS );
     // draw our ship now
     _ship->drawShip(modelMtx, viewMtx, projMtx);
     //// END DRAWING THE SHIP ////
 }
 
-void A3Engine::_updateScene() {
+void MPEngine::_updateScene() {
     // fly
     if( _keys[GLFW_KEY_W] ) {
         // go forward
-        //_arcBall->moveForward(_cameraSpeed.x);
         _ship->flyForward();
 
     }
     if( _keys[GLFW_KEY_S] ) {
         // go backward
-        //_arcBall->moveBackward(_cameraSpeed.x);
         _ship->flyBackward();
     }
     // turn right
     if( _keys[GLFW_KEY_D] ) {
         _ship->turnRight();
-        //_arcBall->rotate(_cameraSpeed.y, 0.0f);
     }
     // turn left
     if( _keys[GLFW_KEY_A] ) {
         _ship->turnLeft();
-        //_arcBall->rotate(-_cameraSpeed.y, 0.0f);
     }
     _arcBall->setLookAtPoint(_ship->getPosition());
     _arcBall->recomputeOrientation();
 }
 
-void A3Engine::run() {
+void MPEngine::run() {
     //  This is our draw loop - all rendering is done here.  We use a loop to keep the window open
     //	until the user decides to close the window and quit the program.  Without a loop, the
     //	window will display once and then the program exits.
@@ -372,13 +358,12 @@ void A3Engine::run() {
 //
 // Private Helper FUnctions
 
-void A3Engine::_computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx) const {
+void MPEngine::_computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx) const {
     // precompute the Model-View-Projection matrix on the CPU
     glm::mat4 mvpMtx = projMtx * viewMtx * modelMtx;
     // then send it to the shader on the GPU to apply to every vertex
     _lightingShaderProgram->setProgramUniform(_lightingShaderUniformLocations.mvpMatrix, mvpMtx);
 
-    // TODO #7: compute and send the normal matrix
     glm::mat3 normalMtx = glm::mat3(glm::transpose(glm::inverse(modelMtx)));
     _lightingShaderProgram->setProgramUniform(_lightingShaderUniformLocations.normMatrix, normalMtx);
 }
@@ -387,22 +372,22 @@ void A3Engine::_computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewM
 //
 // Callbacks
 
-void lab05_keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods ) {
-    auto engine = (A3Engine*) glfwGetWindowUserPointer(window);
+void MP_keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods ) {
+    auto engine = (MPEngine*) glfwGetWindowUserPointer(window);
 
     // pass the key and action through to the engine
     engine->handleKeyEvent(key, action);
 }
 
-void lab05_cursor_callback(GLFWwindow *window, double x, double y ) {
-    auto engine = (A3Engine*) glfwGetWindowUserPointer(window);
+void MP_cursor_callback(GLFWwindow *window, double x, double y ) {
+    auto engine = (MPEngine*) glfwGetWindowUserPointer(window);
 
     // pass the cursor position through to the engine
     engine->handleCursorPositionEvent(glm::vec2(x, y));
 }
 
-void lab05_mouse_button_callback(GLFWwindow *window, int button, int action, int mods ) {
-    auto engine = (A3Engine*) glfwGetWindowUserPointer(window);
+void MP_mouse_button_callback(GLFWwindow *window, int button, int action, int mods ) {
+    auto engine = (MPEngine*) glfwGetWindowUserPointer(window);
 
     // pass the mouse button and action through to the engine
     engine->handleMouseButtonEvent(button, action);
