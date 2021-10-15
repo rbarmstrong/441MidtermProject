@@ -2,6 +2,7 @@
 #define LAB05_LAB05_ENGINE_HPP
 
 #include "ArcBall.hpp"
+#include <CSCI441/FreeCam.hpp>
 #include <CSCI441/OpenGLEngine.hpp>
 #include <CSCI441/ShaderProgram.hpp>
 
@@ -63,8 +64,8 @@ private:
     /// \desc current state of the left mouse button
     GLint _leftMouseButtonState;
 
-    /// \desc the static fixed camera in our world
     ArcBall* _arcBall;
+    CSCI441::FreeCam* _freeCam;
     /// \desc pair of values to store the speed the camera can move/rotate.
     /// \brief x = forward/backward delta, y = rotational delta
     glm::vec2 _cameraSpeed;

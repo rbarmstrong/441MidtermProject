@@ -27,6 +27,7 @@ MPEngine::MPEngine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
 
     _mousePosition = glm::vec2(MOUSE_UNINITIALIZED, MOUSE_UNINITIALIZED );
     _leftMouseButtonState = GLFW_RELEASE;
+    _camToggle = false;
 }
 
 MPEngine::~MPEngine() {
@@ -40,6 +41,9 @@ void MPEngine::handleKeyEvent(GLint key, GLint action) {
     if(action == GLFW_PRESS) {
         switch( key ) {
             // quit!
+            case GLFW_KEY_C:
+                _camToggle = !_camToggle;
+                break;
             case GLFW_KEY_Q:
             case GLFW_KEY_ESCAPE:
                 setWindowShouldClose();
@@ -66,19 +70,26 @@ void MPEngine::handleCursorPositionEvent(glm::vec2 currMousePosition) {
 
     // if the left mouse button is being held down while the mouse is moving
     if(_leftMouseButtonState == GLFW_PRESS) {
-        if (_keys[GLFW_KEY_LEFT_SHIFT] || _keys[GLFW_KEY_RIGHT_SHIFT]) {
-            if (currMousePosition.y > _mousePosition.y) {
-                _arcBall->moveBackward((currMousePosition.y - _mousePosition.y) * 0.02f);
-            }
-            else if (currMousePosition.y < _mousePosition.y) {
-                _arcBall->moveForward((_mousePosition.y - currMousePosition.y) * 0.02f);
-            }
+        if (!_camToggle) {
+            _freeCam->rotate((currMousePosition.x - _mousePosition.x) * 0.005f,
+                             (_mousePosition.y - currMousePosition.y) * 0.005f );
         }
         else {
-            // rotate the camera by the distance the mouse moved
-            _arcBall->rotate((currMousePosition.x - _mousePosition.x) * 0.005f,
-                             (currMousePosition.y - _mousePosition.y) * 0.005f );
+            if (_keys[GLFW_KEY_LEFT_SHIFT] || _keys[GLFW_KEY_RIGHT_SHIFT]) {
+                if (currMousePosition.y > _mousePosition.y) {
+                    _arcBall->moveBackward((currMousePosition.y - _mousePosition.y) * 0.02f);
+                }
+                else if (currMousePosition.y < _mousePosition.y) {
+                    _arcBall->moveForward((_mousePosition.y - currMousePosition.y) * 0.02f);
+                }
+            }
+            else {
+                // rotate the camera by the distance the mouse moved
+                _arcBall->rotate((currMousePosition.x - _mousePosition.x) * 0.005f,
+                                 (currMousePosition.y - _mousePosition.y) * 0.005f );
+            }
         }
+
     }
 
     // update the mouse position
@@ -222,6 +233,12 @@ void MPEngine::_setupScene() {
     _arcBall->setTheta( M_PI / 3.0f );
     _arcBall->setPhi( M_PI / 1.8f );
     _arcBall->recomputeOrientation();
+
+    _freeCam = new CSCI441::FreeCam();
+    _freeCam->setPosition( glm::vec3(60.0f, 40.0f, 30.0f) );
+    _freeCam->setTheta( -M_PI / 3.0f );
+    _freeCam->setPhi( M_PI / 2.8f );
+    _freeCam->recomputeOrientation();
     _cameraSpeed = glm::vec2(0.25f, 0.02f);
 
     glm::vec3 lightDirec = glm::vec3(-1, -1, -1);
@@ -295,26 +312,56 @@ void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
 }
 
 void MPEngine::_updateScene() {
-    // fly
-    if( _keys[GLFW_KEY_W] ) {
-        // go forward
-        _ship->flyForward();
-
+    if (_camToggle) {
+        // fly
+        if( _keys[GLFW_KEY_W] ) {
+            // go forward
+            _ship->flyForward();
+        }
+        if( _keys[GLFW_KEY_S] ) {
+            // go backward
+            _ship->flyBackward();
+        }
+        // turn right
+        if( _keys[GLFW_KEY_D] ) {
+            _ship->turnRight();
+        }
+        // turn left
+        if( _keys[GLFW_KEY_A] ) {
+            _ship->turnLeft();
+        }
+        _arcBall->setLookAtPoint(_ship->getPosition());
+        _arcBall->recomputeOrientation();
     }
-    if( _keys[GLFW_KEY_S] ) {
-        // go backward
-        _ship->flyBackward();
+    else {
+        // fly
+        if( _keys[GLFW_KEY_SPACE] ) {
+            // go backward if shift held down
+            if( _keys[GLFW_KEY_LEFT_SHIFT] || _keys[GLFW_KEY_RIGHT_SHIFT] ) {
+                _freeCam->moveBackward(_cameraSpeed.x);
+            }
+                // go forward
+            else {
+                _freeCam->moveForward(_cameraSpeed.x);
+            }
+        }
+        // turn right
+        if( _keys[GLFW_KEY_D] ) {
+            _freeCam->rotate(_cameraSpeed.y, 0.0f);
+        }
+        // turn left
+        if( _keys[GLFW_KEY_A] ) {
+            _freeCam->rotate(-_cameraSpeed.y, 0.0f);
+        }
+        // pitch up
+        if( _keys[GLFW_KEY_W] ) {
+            _freeCam->rotate(0.0f, _cameraSpeed.y);
+        }
+        // pitch down
+        if( _keys[GLFW_KEY_S] ) {
+            _freeCam->rotate(0.0f, -_cameraSpeed.y);
+        }
     }
-    // turn right
-    if( _keys[GLFW_KEY_D] ) {
-        _ship->turnRight();
-    }
-    // turn left
-    if( _keys[GLFW_KEY_A] ) {
-        _ship->turnLeft();
-    }
-    _arcBall->setLookAtPoint(_ship->getPosition());
-    _arcBall->recomputeOrientation();
 }
 
 void MPEngine::run() {
@@ -340,7 +387,13 @@ void MPEngine::run() {
         glm::mat4 projectionMatrix = glm::perspective( 45.0f, (GLfloat) framebufferWidth / (GLfloat) framebufferHeight, 0.001f, 1000.0f );
 
         // set up our look at matrix to position our camera
-        glm::mat4 viewMatrix = _arcBall->getViewMatrix();
+        glm::mat4 viewMatrix;
+        if (_camToggle) {
+            viewMatrix = _arcBall->getViewMatrix();
+        }
+        else {
+            viewMatrix = _freeCam->getViewMatrix();
+        }
 
         // draw everything to the window
         _renderScene(viewMatrix, projectionMatrix);
