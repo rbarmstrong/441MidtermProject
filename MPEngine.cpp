@@ -28,10 +28,14 @@ MPEngine::MPEngine(int OPENGL_MAJOR_VERSION, int OPENGL_MINOR_VERSION,
     _mousePosition = glm::vec2(MOUSE_UNINITIALIZED, MOUSE_UNINITIALIZED );
     _leftMouseButtonState = GLFW_RELEASE;
     _camToggle = false;
+    _firstOn = false;
+    _tracker = 0;
 }
 
 MPEngine::~MPEngine() {
     delete _arcBall;
+    delete _freeCam;
+    delete _firstCam;
 }
 
 void MPEngine::handleKeyEvent(GLint key, GLint action) {
@@ -41,8 +45,20 @@ void MPEngine::handleKeyEvent(GLint key, GLint action) {
     if(action == GLFW_PRESS) {
         switch( key ) {
             // quit!
+            case GLFW_KEY_1:
+                tracker = 0;
+                break;
+            case GLFW_KEY_2:
+                tracker = 1;
+                break;
+            case GLFW_KEY_3:
+                tracker = 2;
+                break;
             case GLFW_KEY_C:
                 _camToggle = !_camToggle;
+                break;
+            case GLFW_KEY_F:
+                _firstOn = !_firstOn;
                 break;
             case GLFW_KEY_Q:
             case GLFW_KEY_ESCAPE:
@@ -142,6 +158,14 @@ void MPEngine::_setupBuffers() {
                      _lightingShaderUniformLocations.mvpMatrix,
                      _lightingShaderUniformLocations.normMatrix,
                      _lightingShaderUniformLocations.materialColor);
+    _car = new Car(_lightingShaderProgram->getShaderProgramHandle(),
+                     _lightingShaderUniformLocations.mvpMatrix,
+                     _lightingShaderUniformLocations.normMatrix,
+                     _lightingShaderUniformLocations.materialColor);
+    _hero = new Hero(_lightingShaderProgram->getShaderProgramHandle(),
+                     _lightingShaderUniformLocations.mvpMatrix,
+                     _lightingShaderUniformLocations.normMatrix,
+                     _lightingShaderUniformLocations.materialColor);
 
     _createGroundBuffers();
     _generateEnvironment();
@@ -231,11 +255,25 @@ void MPEngine::_generateEnvironment() {
 void MPEngine::_setupScene() {
     _arcBall = new ArcBall();
     _arcBall->setRadius(10.0f);
-    _arcBall->setLookAtPoint(_ship->getPosition());
+    switch( tracker ) {
+        case 0:
+            _arcBall->setLookAtPoint(_ship->getPosition());
+            break;
+        case 1:
+            _arcBall->setLookAtPoint(_hero->getPosition());
+            break;
+        case 2:
+            _arcBall->setLookAtPoint(_car->getPosition());
+            break;
+
+    }
     _arcBall->setTheta( M_PI / 3.0f );
     _arcBall->setPhi( M_PI / 1.8f );
     _arcBall->recomputeOrientation();
-
+    _firstCam = new CSCI441::FreeCam();
+    _firstCam->setTheta(-M_PI / 3.0f);
+    _firstCam->setPhi( M_PI / 2);
+    _firstCam->recomputeOrientation();
     _freeCam = new CSCI441::FreeCam();
     _freeCam->setPosition( glm::vec3(60.0f, 40.0f, 30.0f) );
     _freeCam->setTheta( -M_PI / 3.0f );
@@ -274,6 +312,8 @@ void MPEngine::_cleanupBuffers() {
 
     fprintf( stdout, "[INFO]: ...deleting models..\n" );
     delete _ship;
+    delete _car;
+    delete _hero;
 }
 
 //*************************************************************************************
@@ -313,10 +353,19 @@ void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     glm::mat4 modelMtx(1.0f);
     // draw our ship now
     _ship->drawShip(modelMtx, viewMtx, projMtx);
+    _hero->drawHero(modelMtx, viewMtx, projMtx);
+    _car->drawCar(modelMtx, viewMtx, projMtx);
     //// END DRAWING THE SHIP ////
 }
 
 void MPEngine::_updateScene() {
+    int radius = 3;
+    glm::vec3 firstpos  =_ship->getPosition();
+    firstpos.x += radius * sinf(_ship->getAngle());
+    firstpos.z += radius * cosf(_ship->getAngle());
+    _firstCam->setPosition( firstpos );
+    _firstCam->setTheta( -_ship->getAngle() +M_PI);
+    _firstCam->recomputeOrientation();
     if (_camToggle) {
         // fly
         if( _keys[GLFW_KEY_W] ) {
@@ -373,36 +422,43 @@ void MPEngine::run() {
     //  This is our draw loop - all rendering is done here.  We use a loop to keep the window open
     //	until the user decides to close the window and quit the program.  Without a loop, the
     //	window will display once and then the program exits.
-    while( !glfwWindowShouldClose(_window) ) {	        // check if the window was instructed to be closed
-        glDrawBuffer( GL_BACK );				        // work with our back frame buffer
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );	// clear the current color contents and depth buffer in the window
+    while( !glfwWindowShouldClose(_window) ) {            // check if the window was instructed to be closed
+        glDrawBuffer(GL_BACK);                        // work with our back frame buffer
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);    // clear the current color contents and depth buffer in the window
 
         // Get the size of our framebuffer.  Ideally this should be the same dimensions as our window, but
         // when using a Retina display the actual window can be larger than the requested window.  Therefore,
         // query what the actual size of the window we are rendering to is.
         GLint framebufferWidth, framebufferHeight;
-        glfwGetFramebufferSize( _window, &framebufferWidth, &framebufferHeight );
+        glfwGetFramebufferSize(_window, &framebufferWidth, &framebufferHeight);
 
         // update the viewport - tell OpenGL we want to render to the whole window
-        glViewport( 0, 0, framebufferWidth, framebufferHeight );
+        glViewport(0, 0, framebufferWidth, framebufferHeight);
 
         // set the projection matrix based on the window size
         // use a perspective projection that ranges
         // with a FOV of 45 degrees, for our current aspect ratio, and Z ranges from [0.001, 1000].
-        glm::mat4 projectionMatrix = glm::perspective( 45.0f, (GLfloat) framebufferWidth / (GLfloat) framebufferHeight, 0.001f, 1000.0f );
+        glm::mat4 projectionMatrix = glm::perspective(45.0f, (GLfloat) framebufferWidth / (GLfloat) framebufferHeight,
+                                                      0.001f, 1000.0f);
 
         // set up our look at matrix to position our camera
         glm::mat4 viewMatrix;
         if (_camToggle) {
             viewMatrix = _arcBall->getViewMatrix();
-        }
-        else {
+        } else {
             viewMatrix = _freeCam->getViewMatrix();
         }
 
         // draw everything to the window
         _renderScene(viewMatrix, projectionMatrix);
-
+        if (_firstOn) {
+            glViewport(0, 0, framebufferWidth / 4, framebufferHeight / 4);
+            projectionMatrix = glm::perspective(45.0f, (GLfloat) (framebufferWidth / 4) / (GLfloat) (framebufferHeight / 4),
+                                            0.001f, 1000.0f);
+            viewMatrix = _firstCam->getViewMatrix();
+            _renderScene(viewMatrix, projectionMatrix);
+        }
         _updateScene();
 
         glfwSwapBuffers(_window);                       // flush the OpenGL commands and make sure they get rendered!

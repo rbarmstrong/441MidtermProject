@@ -29,12 +29,60 @@ Car::Car(GLuint shaderProgramHandle, GLint mvpMtxUniformLocation, GLint normalMt
 
     _idleMove = 0.0f;
     _idleIsUp = true;
+    _moveSpeed = 1;
+    _rotateCarAngle = 0;
+    _carTrans = glm::vec3(31.0f, .15f, 31.0f);
 
 }
+void Car::flyForward() {
+    _carTrans.x += _moveSpeed * sinf(_rotateCarAngle);
+    _carTrans.z += _moveSpeed * cosf(_rotateCarAngle);
+    if (_carTrans.x > 55) {
+        _carTrans.x -= _moveSpeed;
+    }
+    if (_carTrans.x < -55) {
+        _carTrans.x += _moveSpeed;
+    }
+    if (_carTrans.z > 55) {
+        _carTrans.z -= _moveSpeed;
+    }
+    if (_carTrans.z < -55) {
+        _carTrans.z += _moveSpeed;
+    }
+}
 
+void Car::flyBackward() {
+    _carTrans.x -= _moveSpeed * sinf(_rotateCarAngle);
+    _carTrans.z -= _moveSpeed * cosf(_rotateCarAngle);
+    if (_carTrans.x > 55) {
+        _carTrans.x -= _moveSpeed;
+    }
+    if (_carTrans.x < -55) {
+        _carTrans.x += _moveSpeed;
+    }
+    if (_carTrans.z > 55) {
+        _carTrans.z -= _moveSpeed;
+    }
+    if (_carTrans.z < -55) {
+        _carTrans.z += _moveSpeed;
+    }
+}
+
+void Car::turnLeft() {
+    _rotateCarAngle += 0.1;
+}
+
+void Car::turnRight() {
+    _rotateCarAngle -= 0.1;
+}
+
+glm::vec3 Car::getPosition() {
+    return _carTrans;
+}
 void Car::drawCar(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx ) {
     glUseProgram( _shaderProgramHandle );
-
+    modelMtx = glm::translate(modelMtx, _carTrans);
+    modelMtx = glm::rotate(modelMtx, _rotateCarAngle, CSCI441::Y_AXIS );
     _drawCarBody(modelMtx, viewMtx, projMtx);        // the body of car
     _drawWheel(true, true, modelMtx, viewMtx, projMtx);  // the left front wheel
     _drawWheel(true, false, modelMtx, viewMtx, projMtx);  // the left back wheel

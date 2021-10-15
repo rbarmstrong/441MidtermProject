@@ -92,6 +92,10 @@ glm::vec3 Ship::getPosition() {
     return _shipTrans;
 }
 
+GLfloat Ship::getAngle() {
+    return _rotateShipAngle;
+}
+
 void Ship::_drawShipBody(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx ) const {
     _computeAndSendMatrixUniforms(modelMtx, viewMtx, projMtx);
 

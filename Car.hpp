@@ -16,6 +16,8 @@ public:
 
     void drawCar( glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx );
 
+    glm::vec3 getPosition();
+
 private:
     /// \desc handle of the shader program to use when drawing the plane
     GLuint _shaderProgramHandle;
@@ -60,6 +62,18 @@ private:
     /// \param viewMtx camera view matrix
     /// \param projMtx camera projection matrix
     void _computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx) const;
+
+    void flyBackward();
+
+    void flyForward();
+
+    void turnLeft();
+
+    void turnRight();
+
+    glm::vec3 _carTrans;
+    float _moveSpeed;
+    float _rotateCarAngle;
 };
 
 

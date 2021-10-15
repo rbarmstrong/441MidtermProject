@@ -8,6 +8,8 @@
 
 #include "Ship.hpp"
 
+#include "Car.hpp"
+#include "Hero.hpp"
 #include <vector>
 
 class MPEngine : public CSCI441::OpenGLEngine {
@@ -66,14 +68,17 @@ private:
 
     ArcBall* _arcBall;
     CSCI441::FreeCam* _freeCam;
+    CSCI441::FreeCam *_firstCam;
     /// \desc pair of values to store the speed the camera can move/rotate.
     /// \brief x = forward/backward delta, y = rotational delta
     glm::vec2 _cameraSpeed;
     GLboolean _camToggle;
+    GLboolean _firstOn;
 
     /// \desc our plane model
     Ship* _ship;
-
+    Hero* _hero;
+    Car* _car;
     /// \desc the size of the world (controls the ground size and locations of buildings)
     static constexpr GLfloat WORLD_SIZE = 55.0f;
     /// \desc VAO for our ground
@@ -124,6 +129,9 @@ private:
     /// \param viewMtx camera view matrix
     /// \param projMtx camera projection matrix
     void _computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx) const;
+
+
+    int tracker;
 };
 
 void MP_keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods );
