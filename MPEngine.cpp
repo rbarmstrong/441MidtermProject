@@ -47,12 +47,15 @@ void MPEngine::handleKeyEvent(GLint key, GLint action) {
             // quit!
             case GLFW_KEY_1:
                 tracker = 0;
+                _arcBall->setLookAtPoint(_ship->getPosition());
                 break;
             case GLFW_KEY_2:
                 tracker = 1;
+                _arcBall->setLookAtPoint(_hero->getPosition());
                 break;
             case GLFW_KEY_3:
                 tracker = 2;
+                _arcBall->setLookAtPoint(_car->getPosition());
                 break;
             case GLFW_KEY_C:
                 _camToggle = !_camToggle;
@@ -366,54 +369,101 @@ void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
 }
 
 void MPEngine::_updateScene() {
-
+    int radius;
+    glm::vec3 firstpos;
     switch( tracker ) {
         case 0:
-            int radius = 3;
-            glm::vec3 firstpos = _ship->getPosition();
+            radius = 3;
+            firstpos = _ship->getPosition();
             firstpos.x += radius * sinf(_ship->getAngle());
             firstpos.z += radius * cosf(_ship->getAngle());
             _firstCam->setPosition(firstpos);
             _firstCam->setTheta(-_ship->getAngle() + M_PI);
             break;
-        /*case 1:
-            int radius = 1;
-            glm::vec3 firstpos = _hero->getPosition();
+        case 1:
+            radius = 1;
+            firstpos = _hero->getPosition();
             firstpos.x += radius * sinf(_hero->getAngle());
             firstpos.z += radius * cosf(_hero->getAngle());
             _firstCam->setPosition(firstpos);
             _firstCam->setTheta(-_hero->getAngle() + M_PI);
             break;
         case 2:
-            int radius = 1;
-            glm::vec3 firstpos = _car->getPosition();
+            radius = 1;
+            firstpos = _car->getPosition();
             firstpos.x += radius * sinf(_car->getAngle());
             firstpos.z += radius * cosf(_car->getAngle());
             _firstCam->setPosition(firstpos);
             _firstCam->setTheta(-_car->getAngle() + M_PI);
-            break;*/
+            break;
     }
     _firstCam->recomputeOrientation();
     if (_camToggle) {
         // fly
-        if( _keys[GLFW_KEY_W] ) {
-            // go forward
-            _ship->flyForward();
+        switch( tracker ) {
+            case 0:
+                if (_keys[GLFW_KEY_W]) {
+                    // go forward
+                    _ship->flyForward();
+                }
+                if (_keys[GLFW_KEY_S]) {
+                    // go backward
+                    _ship->flyBackward();
+                }
+                // turn right
+                if (_keys[GLFW_KEY_D]) {
+                    _ship->turnRight();
+                }
+                // turn left
+                if (_keys[GLFW_KEY_A]) {
+                    _ship->turnLeft();
+                }
+                _arcBall->setLookAtPoint(_ship->getPosition());
+                _arcBall->recomputeOrientation();
+                break;
+            case 1:
+                if (_keys[GLFW_KEY_W]) {
+                    // go forward
+                    _hero->flyForward();
+                }
+                if (_keys[GLFW_KEY_S]) {
+                    // go backward
+                    _hero->flyBackward();
+                }
+                // turn right
+                if (_keys[GLFW_KEY_D]) {
+                    _hero->turnRight();
+                }
+                // turn left
+                if (_keys[GLFW_KEY_A]) {
+                    _hero->turnLeft();
+                }
+                _arcBall->setLookAtPoint(_hero->getPosition());
+                _arcBall->recomputeOrientation();
+                break;
+            case 2:
+                if (_keys[GLFW_KEY_W]) {
+                    // go forward
+                    _car->flyForward();
+                }
+                if (_keys[GLFW_KEY_S]) {
+                    // go backward
+                    _car->flyBackward();
+                }
+                // turn right
+                if (_keys[GLFW_KEY_D]) {
+                    _car->turnRight();
+                }
+                // turn left
+                if (_keys[GLFW_KEY_A]) {
+                    _car->turnLeft();
+                }
+                _arcBall->setLookAtPoint(_car->getPosition());
+                _arcBall->recomputeOrientation();
+                break;
+
         }
-        if( _keys[GLFW_KEY_S] ) {
-            // go backward
-            _ship->flyBackward();
-        }
-        // turn right
-        if( _keys[GLFW_KEY_D] ) {
-            _ship->turnRight();
-        }
-        // turn left
-        if( _keys[GLFW_KEY_A] ) {
-            _ship->turnLeft();
-        }
-        _arcBall->setLookAtPoint(_ship->getPosition());
-        _arcBall->recomputeOrientation();
+
     }
     else {
         // fly

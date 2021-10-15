@@ -20,6 +20,12 @@ public:
 
     GLfloat getAngle();
 
+    void flyForward();
+    void flyBackward();
+
+    void turnLeft();
+    void turnRight();
+
 private:
     /// \desc handle of the shader program to use when drawing the plane
     GLuint _shaderProgramHandle;
@@ -65,13 +71,7 @@ private:
     /// \param projMtx camera projection matrix
     void _computeAndSendMatrixUniforms(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx) const;
 
-    void flyBackward();
 
-    void flyForward();
-
-    void turnLeft();
-
-    void turnRight();
 
     glm::vec3 _carTrans;
     float _moveSpeed;

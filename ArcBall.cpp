@@ -16,7 +16,7 @@ void ArcBall::recomputeOrientation() {
 }
 
 void ArcBall::moveForward(GLfloat movementFactor) {
-    if (_radius > 10) {
+    if (_radius > 1) {
         _radius -= movementFactor;
     }
     recomputeOrientation();

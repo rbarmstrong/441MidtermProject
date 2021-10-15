@@ -30,6 +30,8 @@ public:
     glm::vec3 getPosition();
 
     GLfloat getAngle();
+    void turnLeft();
+    void turnRight();
 
 private:
     /// \desc current angle of rotation for the propeller
@@ -88,9 +90,7 @@ private:
     float _rotateHeroAngle;
     glm::vec3  _heroTrans;
 
-    void turnLeft();
 
-    void turnRight();
 
 };
 
