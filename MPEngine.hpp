@@ -108,12 +108,20 @@ private:
     struct LightingShaderUniformLocations {
         /// \desc precomputed MVP matrix location
         GLint mvpMatrix;
+        GLint modelMatrix;
         /// \desc material diffuse color location
         GLint materialColor;
         GLint normMatrix;
         GLint lightDirec;
         GLint lightColor;
         GLint camPos;
+
+        GLint pointLightColor;
+        GLint pointLightPos;
+
+        GLint attenuationConst;
+        GLint attenuationLinear;
+        GLint attenuationQuadratic;
     } _lightingShaderUniformLocations;
     /// \desc stores the locations of all of our shader attributes
     struct LightingShaderAttributeLocations {

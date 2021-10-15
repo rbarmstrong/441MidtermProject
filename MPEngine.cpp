@@ -142,12 +142,20 @@ void MPEngine::_setupShaders() {
     _lightingShaderProgram = new CSCI441::ShaderProgram("shaders/A3.v.glsl", "shaders/A3.f.glsl" );
 
     _lightingShaderUniformLocations.mvpMatrix      = _lightingShaderProgram->getUniformLocation("mvpMatrix");
+    _lightingShaderUniformLocations.modelMatrix       = _lightingShaderProgram->getUniformLocation("modelMatrix");
+
     _lightingShaderUniformLocations.normMatrix     = _lightingShaderProgram->getUniformLocation("normMatrix");
     _lightingShaderUniformLocations.lightDirec     = _lightingShaderProgram->getUniformLocation("lightDirec");
     _lightingShaderUniformLocations.lightColor     = _lightingShaderProgram->getUniformLocation("lightColor");
     _lightingShaderUniformLocations.materialColor  = _lightingShaderProgram->getUniformLocation("materialColor");
 
     _lightingShaderUniformLocations.camPos      = _lightingShaderProgram->getUniformLocation("camPos");
+    _lightingShaderUniformLocations.pointLightPos   = _lightingShaderProgram->getUniformLocation("pointLightPos");
+    _lightingShaderUniformLocations.pointLightColor = _lightingShaderProgram->getUniformLocation("pointLightColor");
+
+    _lightingShaderUniformLocations.attenuationConst = _lightingShaderProgram->getUniformLocation("attenuationConst");
+    _lightingShaderUniformLocations.attenuationLinear = _lightingShaderProgram->getUniformLocation("attenuationLinear");
+    _lightingShaderUniformLocations.attenuationQuadratic = _lightingShaderProgram->getUniformLocation("attenuationQuadratic");
 
     _lightingShaderAttributeLocations.vPos         = _lightingShaderProgram->getAttributeLocation("vPos");
     _lightingShaderAttributeLocations.vNorm        = _lightingShaderProgram->getAttributeLocation("vNorm");
@@ -294,6 +302,20 @@ void MPEngine::_setupScene() {
                         _lightingShaderUniformLocations.lightColor,
                         1,
                         &lightColor[0]);
+
+    glm::vec3 pointLightColor = glm::vec3(0, 1, 0);
+
+    glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
+                        _lightingShaderUniformLocations.pointLightColor,
+                        1,
+                        &pointLightColor[0]);
+
+    float attenuationConst = 0.5;
+    float attenuationLinear = 0.5;
+    float attenuationQuadratic = 1;
+    glProgramUniform1f(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.attenuationConst, attenuationConst);
+    glProgramUniform1f(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.attenuationLinear, attenuationLinear);
+    glProgramUniform1f(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.attenuationQuadratic, attenuationQuadratic);
 }
 
 //*************************************************************************************
@@ -329,6 +351,11 @@ void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
 
     // camera position can change so send it to shader every frame
     glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(), _lightingShaderUniformLocations.camPos, 1, &_freeCam->getPosition()[0]);
+    glProgramUniform3fv(_lightingShaderProgram->getShaderProgramHandle(),
+                        _lightingShaderUniformLocations.pointLightPos,
+                        1,
+                        &_freeCam->getPosition()[0]);
+
 
     //// BEGIN DRAWING THE GROUND PLANE ////
     // draw the ground plane

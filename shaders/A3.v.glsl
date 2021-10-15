@@ -2,11 +2,21 @@
 
 // uniform inputs
 uniform mat4 mvpMatrix;                 // the precomputed Model-View-Projection Matrix
+uniform mat4 modelMatrix;
 uniform mat3 normMatrix;
+
 uniform vec3 lightDirec;
 uniform vec3 lightColor;
 
 uniform vec3 camPos;
+uniform vec3 pointLightPos;
+uniform vec3 pointLightColor;
+
+// attenuation constants
+uniform float attenuationConst;
+uniform float attenuationLinear;
+uniform float attenuationQuadratic;
+
 
 uniform vec3 materialColor;             // the material color for our vertex (& whole object)
 
@@ -23,8 +33,8 @@ void main() {
 
     vec3 lightVec = normalize(-1 * lightDirec);
 
-//    float lightVecMag = sqrt(lightVec.x * lightVec.x + lightVec.y * lightVec.y + lightVec.z * lightVec.z);
-//    vec3 normLightVec = lightVec / lightVecMag;
+    //    float lightVecMag = sqrt(lightVec.x * lightVec.x + lightVec.y * lightVec.y + lightVec.z * lightVec.z);
+    //    vec3 normLightVec = lightVec / lightVecMag;
 
     vec3 normVec = vNorm * normMatrix;
 
@@ -34,6 +44,9 @@ void main() {
 
     // diffuse
     vec3 diffuse = max(dot(normVec, lightVec), 0) * lightColor;
+
+    // get vertex position in world space
+    vec3 vPosWorld = vec3(modelMatrix * vec4(vPos, 1.0));
 
     // specular
     float specularStrength = 0.1;
@@ -46,9 +59,20 @@ void main() {
     vec3 dirColor = (ambient + diffuse + specular);
 
 
+    // attenuation calculation
+    float d = length(pointLightPos - vPos);
+    float attenuation = 1.0 / (attenuationConst + attenuationLinear * d + attenuationQuadratic * (d * d));
+
+    // point light
+    vec3 pointLightVec = normalize(pointLightPos - vPos);
+    vec3 pointDiffuse = max(dot(normVec, pointLightVec), 0) * pointLightColor;
+    vec3 pointSpecular = specularStrength * reflectance * pointLightColor;
+
+    vec3 pointColor = (pointDiffuse + pointSpecular) * attenuation * 1000;
 
 
-    vec3 newColor = (dirColor) * materialColor;
+
+    vec3 newColor = (pointColor) * materialColor;
     color = newColor;
 
 }
