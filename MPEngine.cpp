@@ -304,6 +304,13 @@ void MPEngine::_renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     }
     //// END DRAWING THE BUILDINGS ////
 
+    glm::mat4 monolithModelMtx = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.45, 0));
+    monolithModelMtx = glm::scale(monolithModelMtx, glm::vec3(1, 9, 4));
+    _computeAndSendMatrixUniforms(monolithModelMtx, viewMtx, projMtx);
+    glm::vec3 monolithColor(0, 0, 0);
+    glUniform3fv(_lightingShaderUniformLocations.materialColor, 1, &monolithColor[0]);
+    CSCI441::drawSolidCube(0.1);
+
     //// BEGIN DRAWING THE SHIP ////
     glm::mat4 modelMtx(1.0f);
     // draw our ship now
