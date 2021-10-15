@@ -28,7 +28,7 @@ Hero::Hero( GLuint shaderProgramHandle, GLint mvpMtxUniformLocation, GLint norma
     _scaleLeg = glm::vec3( 0.75f, 0.5f, 0.5f );
     _scaleBody = glm::vec3( 1.5f, 0.5f, 1.0f );
     _scaleHead = glm::vec3( 1.0f, 1.0f, 1.0f );
-    _moveSpeed = 1;
+    _moveSpeed = 0.05;
     _rotateHeroAngle = 0;
     _heroTrans = glm::vec3(30.0f, .15f, 30.0f);
 
@@ -98,7 +98,7 @@ void Hero::drawHero(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx ) {
         }
     }
     modelMtx = glm::translate(modelMtx, _heroTrans);
-    modelMtx = glm::rotate(modelMtx, glm::radians(90.0f)-_rotateHeroAngle, CSCI441::Y_AXIS );
+    modelMtx = glm::rotate(modelMtx, -glm::radians(90.0f)+_rotateHeroAngle, CSCI441::Y_AXIS );
     modelMtx = glm::rotate( modelMtx, (float)M_PI/2.0f, CSCI441::Z_AXIS );
     DrawBody(modelMtx, viewMtx, projMtx);
     _drawLeftArm(modelMtx, viewMtx, projMtx);

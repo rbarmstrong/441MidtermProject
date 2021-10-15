@@ -29,7 +29,7 @@ Car::Car(GLuint shaderProgramHandle, GLint mvpMtxUniformLocation, GLint normalMt
 
     _idleMove = 0.0f;
     _idleIsUp = true;
-    _moveSpeed = 1;
+    _moveSpeed = 0.1;
     _rotateCarAngle = 0;
     _carTrans = glm::vec3(31.0f, .15f, 31.0f);
 
@@ -85,7 +85,7 @@ glm::vec3 Car::getPosition() {
 void Car::drawCar(glm::mat4 modelMtx, glm::mat4 viewMtx, glm::mat4 projMtx ) {
     glUseProgram( _shaderProgramHandle );
     modelMtx = glm::translate(modelMtx, _carTrans);
-    modelMtx = glm::rotate(modelMtx, _rotateCarAngle, CSCI441::Y_AXIS );
+    modelMtx = glm::rotate(modelMtx, glm::radians(90.0f)+_rotateCarAngle, CSCI441::Y_AXIS );
     _drawCarBody(modelMtx, viewMtx, projMtx);        // the body of car
     _drawWheel(true, true, modelMtx, viewMtx, projMtx);  // the left front wheel
     _drawWheel(true, false, modelMtx, viewMtx, projMtx);  // the left back wheel
