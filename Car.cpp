@@ -31,7 +31,7 @@ Car::Car(GLuint shaderProgramHandle, GLint mvpMtxUniformLocation, GLint normalMt
     _idleIsUp = true;
     _moveSpeed = 0.1;
     _rotateCarAngle = 0;
-    _carTrans = glm::vec3(31.0f, .15f, 31.0f);
+    _carTrans = glm::vec3(31.0f, .07f, 31.0f);
 
 }
 void Car::flyForward() {

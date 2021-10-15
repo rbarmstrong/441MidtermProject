@@ -533,8 +533,6 @@ void MPEngine::run() {
         // draw everything to the window
         _renderScene(viewMatrix, projectionMatrix);
 
-        _updateScene();
-
         if (_firstOn) {
             glViewport(0, 0, framebufferWidth / 4, framebufferHeight / 4);
             glScissor(0, 0, framebufferWidth / 4, framebufferHeight / 4);
@@ -547,6 +545,8 @@ void MPEngine::run() {
             _renderScene(viewMatrix, projectionMatrix);
             glDisable(GL_SCISSOR_TEST);
         }
+
+        _updateScene();
 
         glfwSwapBuffers(_window);                       // flush the OpenGL commands and make sure they get rendered!
         glfwPollEvents();				                // check for any events and signal to redraw screen
